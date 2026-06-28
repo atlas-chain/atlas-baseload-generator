@@ -21,11 +21,11 @@ services:
       ATLAS_BASELOAD_PAYLOAD_PROVIDER_BEARER_KEY: ${ATLAS_BASELOAD_PAYLOAD_PROVIDER_BEARER_KEY:-}
       ATLAS_BASELOAD_PAYLOAD_PROVIDER_NAMESPACE: ${ATLAS_BASELOAD_PAYLOAD_PROVIDER_NAMESPACE:-arkiv.entities}
       ATLAS_BASELOAD_PAYLOAD_PROVIDER_VERIFY_RECEIPT: ${ATLAS_BASELOAD_PAYLOAD_PROVIDER_VERIFY_RECEIPT:-true}
-      ATLAS_BASELOAD_CONFIG_DIR: /app/baseload-config
+      ATLAS_BASELOAD_DB_PATH: /app/baseload-config/baseload.sqlite
     ports:
       - "${BACKEND_HOST:-127.0.0.1}:${BACKEND_PORT:-3000}:3000"
     volumes:
-      - ${ATLAS_BASELOAD_CONFIG_DIR:-./baseload-config}:/app/baseload-config
+      - ${ATLAS_BASELOAD_DATA_DIR:-./baseload-config}:/app/baseload-config
     extra_hosts: *extra-hosts
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/health || exit 1"]

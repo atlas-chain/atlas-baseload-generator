@@ -6,6 +6,7 @@ import { parseServerConfig, ServerHelpRequested } from "./serverConfig";
 
 async function main(): Promise<void> {
   let baseloadRuntime: BaseloadRuntime | undefined;
+  let configStore: BaseloadConfigStore | undefined;
 
   try {
     const config = parseServerConfig(process.argv.slice(2));
@@ -23,7 +24,7 @@ async function main(): Promise<void> {
       );
     }
 
-    const configStore = new BaseloadConfigStore(config.baseloadConfigDir, baseloadRuntimeConfig.mnemonic);
+    configStore = await BaseloadConfigStore.open(config.baseloadDbPath, baseloadRuntimeConfig.mnemonic);
     const server = createBaseloadServer({
       port: config.port,
       ...(config.hostname !== undefined ? { hostname: config.hostname } : {}),
@@ -35,10 +36,12 @@ async function main(): Promise<void> {
     });
     console.log(`Baseload server listening on http://${server.hostname}:${server.port}`);
     console.log(`Baseload RPC: ${baseloadRuntimeConfig.rpcUrl ? "configured" : "not configured"}`);
+    console.log(`Baseload config DB: ${config.baseloadDbPath}`);
 
     const shutdown = async () => {
       baseloadRuntime?.stop();
       await server.stop();
+      await configStore?.close();
       process.exit(0);
     };
 
@@ -52,6 +55,7 @@ async function main(): Promise<void> {
 
     console.error(error);
     baseloadRuntime?.stop();
+    await configStore?.close();
     process.exitCode = 1;
   }
 }

@@ -5,11 +5,11 @@ export interface ServerConfig {
   hostname?: string;
   baseloadAdminBearerToken?: string;
   baseloadInitialConfigPath?: string;
-  baseloadConfigDir: string;
+  baseloadDbPath: string;
 }
 
 const DEFAULT_PORT = 3000;
-const DEFAULT_CONFIG_DIR = "baseload-config";
+const DEFAULT_BASELOAD_DB_PATH = "baseload-config/baseload.sqlite";
 
 export class ServerHelpRequested extends CliHelpRequested {}
 
@@ -41,11 +41,11 @@ const SPEC: CliSpec = {
       env: ["ATLAS_BASELOAD_INITIAL_CONFIG_PATH"]
     },
     {
-      flags: "--baseload-config-dir <path>",
+      flags: "--baseload-db-path <path>",
       description:
-        "Directory for saved Baseload config JSON files. Defaults to ATLAS_BASELOAD_CONFIG_DIR or baseload-config.",
-      env: ["ATLAS_BASELOAD_CONFIG_DIR"],
-      default: DEFAULT_CONFIG_DIR
+        "SQLite database path for saved Baseload configs. Defaults to ATLAS_BASELOAD_DB_PATH or baseload-config/baseload.sqlite.",
+      env: ["ATLAS_BASELOAD_DB_PATH"],
+      default: DEFAULT_BASELOAD_DB_PATH
     }
   ]
 };
@@ -61,13 +61,13 @@ export function parseServerConfig(args: string[], env: NodeJS.ProcessEnv = proce
   const hostname = cli.value("host");
   const baseloadAdminBearerToken = cli.value("baseload-admin-bearer-token");
   const baseloadInitialConfigPath = cli.value("baseload-initial-config");
-  const baseloadConfigDir = cli.value("baseload-config-dir") || DEFAULT_CONFIG_DIR;
+  const baseloadDbPath = cli.value("baseload-db-path") || DEFAULT_BASELOAD_DB_PATH;
 
   return {
     port,
     ...(hostname ? { hostname } : {}),
     ...(baseloadAdminBearerToken ? { baseloadAdminBearerToken } : {}),
     ...(baseloadInitialConfigPath ? { baseloadInitialConfigPath } : {}),
-    baseloadConfigDir
+    baseloadDbPath
   };
 }
