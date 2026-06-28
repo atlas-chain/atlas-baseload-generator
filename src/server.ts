@@ -194,7 +194,7 @@ async function handleAdminVerifyRequest(
     return jsonError(405, `Method ${request.method} is not allowed`);
   }
   if (!adminBearerToken) {
-    return jsonError(503, "Admin bearer token is not configured on the backend");
+    return jsonError(503, "Admin bearer token is not configured on the Baseload generator");
   }
   const authError = requireAdminBearerToken(request, adminBearerToken);
   if (authError) return authError;
