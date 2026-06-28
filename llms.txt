@@ -1,0 +1,3 @@
+# Atlas Baseload Generator
+
+Standalone Baseload worker generator for Atlas/Arkiv entity mutation load testing.

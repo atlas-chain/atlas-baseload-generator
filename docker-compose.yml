@@ -1,0 +1,51 @@
+x-extra-hosts: &extra-hosts
+  - "host.docker.internal:${HOST_GATEWAY_IP:-0.0.0.0}"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_COMMIT: ${BUILD_COMMIT:-unknown}
+        BUILD_DATE: ${BUILD_DATE:-unknown}
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 3000
+      SERVER_HOSTNAME: 0.0.0.0
+      BASELOAD_RPC_NODE: ${BASELOAD_RPC_NODE:-}
+      BASELOAD_MNEMONIC: ${BASELOAD_MNEMONIC:-}
+      BASELOAD_ADMIN_BEARER_TOKEN: ${BASELOAD_ADMIN_BEARER_TOKEN:-}
+      BASELOAD_INITIAL_CONFIG_PATH: ${BASELOAD_INITIAL_CONFIG_PATH:-}
+      BASELOAD_PAYLOAD_PROVIDER_URL: ${BASELOAD_PAYLOAD_PROVIDER_URL:-}
+      BASELOAD_PAYLOAD_PROVIDER_BEARER_KEY: ${BASELOAD_PAYLOAD_PROVIDER_BEARER_KEY:-}
+      BASELOAD_PAYLOAD_PROVIDER_NAMESPACE: ${BASELOAD_PAYLOAD_PROVIDER_NAMESPACE:-arkiv.entities}
+      BASELOAD_PAYLOAD_PROVIDER_VERIFY_RECEIPT: ${BASELOAD_PAYLOAD_PROVIDER_VERIFY_RECEIPT:-true}
+      BASELOAD_CONFIG_DIR: /app/baseload-config
+    ports:
+      - "${BACKEND_HOST:-127.0.0.1}:${BACKEND_PORT:-3000}:3000"
+    volumes:
+      - ${BASELOAD_CONFIG_DIR:-./baseload-config}:/app/baseload-config
+    extra_hosts: *extra-hosts
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_TOKEN_SYMBOL: ${VITE_TOKEN_SYMBOL:-ETH}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      PORT: 23560
+      BACKEND_HOST: backend
+      BACKEND_PORT: 3000
+      VITE_TOKEN_SYMBOL: ${VITE_TOKEN_SYMBOL:-ETH}
+    ports:
+      - "${FRONTEND_HOST:-127.0.0.1}:${FRONTEND_PORT:-23560}:23560"
