@@ -331,7 +331,7 @@ class BaseloadWorkerTask {
         try {
           if (!this.runtimeConfig.rpcUrl) {
             this.postStatus("error", {
-              message: "BASELOAD_RPC_NODE is required to run backend Baseload workers",
+              message: "ATLAS_BASELOAD_RPC_NODE is required to run backend Baseload workers",
               ...statusCounts(),
             });
             await sleep(5_000, this.abortController.signal);
@@ -686,7 +686,7 @@ function createArkivClient(
   chainId: number,
 ): WalletArkivClient {
   if (!runtimeConfig.rpcUrl) {
-    throw new Error("BASELOAD_RPC_NODE is required");
+    throw new Error("ATLAS_BASELOAD_RPC_NODE is required");
   }
 
   const account = mnemonicToAccount(runtimeConfig.mnemonic.trim(), {

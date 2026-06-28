@@ -70,8 +70,8 @@ export const MIN_WALLET_NUMBER = 0;
 export const MAX_WALLET_NUMBER = 100;
 export const MAX_BASELOAD_ENTITIES_PER_REQUEST = 1;
 export const BASELOAD_DERIVATION_PATH_PREFIX = "m/44'/60'/0'/0";
-export const DEFAULT_BASELOAD_PAYLOAD_PROVIDER_NAMESPACE = "arkiv.entities";
-export const DEFAULT_BASELOAD_MNEMONIC =
+export const DEFAULT_ATLAS_BASELOAD_PAYLOAD_PROVIDER_NAMESPACE = "arkiv.entities";
+export const DEFAULT_ATLAS_BASELOAD_MNEMONIC =
   "parent picture garment parrot churn record stadium pill rocket craft fish fiscal clip virus view diary replace wealth extra kitten door enforce piece nut";
 
 export const DEFAULT_BASELOAD_WORKER_VALUES = {
@@ -96,8 +96,8 @@ export const EMPTY_BASELOAD_CONFIG: BaseloadConfig = {
 };
 
 export function parseBaseloadRuntimeConfig(env: NodeJS.ProcessEnv = process.env): BaseloadRuntimeConfig {
-  const rpcUrl = env.BASELOAD_RPC_NODE?.trim() || null;
-  const mnemonic = env.BASELOAD_MNEMONIC?.trim() || env.MNEMONIC?.trim() || DEFAULT_BASELOAD_MNEMONIC;
+  const rpcUrl = env.ATLAS_BASELOAD_RPC_NODE?.trim() || null;
+  const mnemonic = env.ATLAS_BASELOAD_MNEMONIC?.trim() || DEFAULT_ATLAS_BASELOAD_MNEMONIC;
   const payloadProvider = parseBaseloadPayloadProviderRuntimeConfig(env);
   return { rpcUrl, mnemonic, payloadProvider };
 }
@@ -105,14 +105,14 @@ export function parseBaseloadRuntimeConfig(env: NodeJS.ProcessEnv = process.env)
 function parseBaseloadPayloadProviderRuntimeConfig(
   env: NodeJS.ProcessEnv,
 ): BaseloadPayloadProviderRuntimeConfig | null {
-  const url = env.BASELOAD_PAYLOAD_PROVIDER_URL?.trim();
+  const url = env.ATLAS_BASELOAD_PAYLOAD_PROVIDER_URL?.trim();
   if (!url) return null;
 
-  const bearerKey = env.BASELOAD_PAYLOAD_PROVIDER_BEARER_KEY?.trim();
+  const bearerKey = env.ATLAS_BASELOAD_PAYLOAD_PROVIDER_BEARER_KEY?.trim();
   const namespace =
-    env.BASELOAD_PAYLOAD_PROVIDER_NAMESPACE?.trim() || DEFAULT_BASELOAD_PAYLOAD_PROVIDER_NAMESPACE;
+    env.ATLAS_BASELOAD_PAYLOAD_PROVIDER_NAMESPACE?.trim() || DEFAULT_ATLAS_BASELOAD_PAYLOAD_PROVIDER_NAMESPACE;
   const verifyReceipt = parseBaseloadPayloadProviderVerifyReceipt(
-    env.BASELOAD_PAYLOAD_PROVIDER_VERIFY_RECEIPT,
+    env.ATLAS_BASELOAD_PAYLOAD_PROVIDER_VERIFY_RECEIPT,
   );
 
   return {
@@ -128,7 +128,7 @@ function parseBaseloadPayloadProviderVerifyReceipt(value: string | undefined): b
   if (!normalized) return true;
   if (["true", "1", "yes", "on"].includes(normalized)) return true;
   if (["false", "0", "no", "off"].includes(normalized)) return false;
-  throw new Error("BASELOAD_PAYLOAD_PROVIDER_VERIFY_RECEIPT must be a boolean");
+  throw new Error("ATLAS_BASELOAD_PAYLOAD_PROVIDER_VERIFY_RECEIPT must be a boolean");
 }
 
 export function createBaseloadWorkerDraft(walletNumber: number): BaseloadWorkerDraft {
@@ -156,7 +156,7 @@ export function createBaseloadWorkerDraft(walletNumber: number): BaseloadWorkerD
 
 export function createBaseloadWorkerFromDraft(
   draft: BaseloadWorkerDraft,
-  mnemonic = DEFAULT_BASELOAD_MNEMONIC,
+  mnemonic = DEFAULT_ATLAS_BASELOAD_MNEMONIC,
 ): BaseloadWorkerConfig {
   return normalizeBaseloadWorker(
     {
@@ -231,7 +231,7 @@ export function createBaseloadWorkerFromDraft(
 
 export function normalizeBaseloadConfig(
   value: unknown,
-  mnemonic = DEFAULT_BASELOAD_MNEMONIC,
+  mnemonic = DEFAULT_ATLAS_BASELOAD_MNEMONIC,
 ): BaseloadConfig {
   if (value === null || typeof value !== "object") {
     throw new Error("Baseload configuration must be a JSON object");
@@ -250,7 +250,7 @@ export function normalizeBaseloadConfig(
 
 export function parseBaseloadConfigJson(
   json: string,
-  mnemonic = DEFAULT_BASELOAD_MNEMONIC,
+  mnemonic = DEFAULT_ATLAS_BASELOAD_MNEMONIC,
 ): BaseloadConfig {
   let parsed: unknown;
   try {
@@ -263,7 +263,7 @@ export function parseBaseloadConfigJson(
 
 export async function readBaseloadConfigFile(
   path: string,
-  mnemonic = DEFAULT_BASELOAD_MNEMONIC,
+  mnemonic = DEFAULT_ATLAS_BASELOAD_MNEMONIC,
 ): Promise<BaseloadConfig> {
   let json: string;
   try {
@@ -296,7 +296,7 @@ export function updateBaseloadWorker(
   config: BaseloadConfig,
   workerId: string,
   patch: Partial<BaseloadWorkerConfig>,
-  mnemonic = DEFAULT_BASELOAD_MNEMONIC,
+  mnemonic = DEFAULT_ATLAS_BASELOAD_MNEMONIC,
 ): BaseloadConfig {
   const workers = config.workers.map((worker) =>
     worker.id === workerId ? normalizeBaseloadWorker({ ...worker, ...patch }, mnemonic) : worker,
@@ -314,7 +314,7 @@ export function removeBaseloadWorker(config: BaseloadConfig, workerId: string): 
 
 export function deriveBaseloadWalletAddress(
   walletNumber: number,
-  mnemonic = DEFAULT_BASELOAD_MNEMONIC,
+  mnemonic = DEFAULT_ATLAS_BASELOAD_MNEMONIC,
 ): string {
   return mnemonicToAccount(mnemonic.trim(), {
     path: `${BASELOAD_DERIVATION_PATH_PREFIX}/${walletNumber}`,
@@ -323,7 +323,7 @@ export function deriveBaseloadWalletAddress(
 
 function normalizeBaseloadWorker(
   value: unknown,
-  mnemonic = DEFAULT_BASELOAD_MNEMONIC,
+  mnemonic = DEFAULT_ATLAS_BASELOAD_MNEMONIC,
 ): BaseloadWorkerConfig {
   if (value === null || typeof value !== "object") {
     throw new Error("Each baseload worker must be a JSON object");

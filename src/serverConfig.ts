@@ -15,7 +15,7 @@ export class ServerHelpRequested extends CliHelpRequested {}
 
 const SPEC: CliSpec = {
   name: "serve",
-  summary: "BASELOAD_RPC_NODE=http://node:8545 bun run serve",
+  summary: "ATLAS_BASELOAD_RPC_NODE=http://node:8545 bun run serve",
   options: [
     {
       flags: "--port <port>",
@@ -31,20 +31,20 @@ const SPEC: CliSpec = {
     {
       flags: "--baseload-admin-bearer-token <token>",
       description:
-        "Bearer token required for mutating Baseload requests. Defaults to BASELOAD_ADMIN_BEARER_TOKEN. If unset, mutations are unrestricted.",
-      env: ["BASELOAD_ADMIN_BEARER_TOKEN"]
+        "Bearer token required for mutating Baseload requests. Defaults to ATLAS_BASELOAD_ADMIN_BEARER_TOKEN. If unset, mutations are unrestricted.",
+      env: ["ATLAS_BASELOAD_ADMIN_BEARER_TOKEN"]
     },
     {
       flags: "--baseload-initial-config <path>",
       description:
-        "Optional Baseload worker config JSON file to load once at backend startup. Defaults to BASELOAD_INITIAL_CONFIG_PATH.",
-      env: ["BASELOAD_INITIAL_CONFIG_PATH"]
+        "Optional Baseload worker config JSON file to load once at backend startup. Defaults to ATLAS_BASELOAD_INITIAL_CONFIG_PATH.",
+      env: ["ATLAS_BASELOAD_INITIAL_CONFIG_PATH"]
     },
     {
       flags: "--baseload-config-dir <path>",
       description:
-        "Directory for saved Baseload config JSON files. Defaults to BASELOAD_CONFIG_DIR or baseload-config.",
-      env: ["BASELOAD_CONFIG_DIR"],
+        "Directory for saved Baseload config JSON files. Defaults to ATLAS_BASELOAD_CONFIG_DIR or baseload-config.",
+      env: ["ATLAS_BASELOAD_CONFIG_DIR"],
       default: DEFAULT_CONFIG_DIR
     }
   ]

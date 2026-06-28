@@ -108,7 +108,7 @@ export function App() {
     setBaseloadConfig(state.config);
     setBaseloadTaskStatuses(state.statuses);
     setBaseloadBalances(state.balances ?? {});
-    setBaseloadError(state.enabled ? null : "BASELOAD_RPC_NODE is not configured on the backend");
+    setBaseloadError(state.enabled ? null : "ATLAS_BASELOAD_RPC_NODE is not configured on the backend");
   };
 
   const updateBaseloadConfig = async (config: BaseloadConfig) => {
