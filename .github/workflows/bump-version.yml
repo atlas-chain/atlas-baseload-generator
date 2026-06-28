@@ -1,0 +1,70 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version bump type
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  bump:
+    name: Bump package versions and create tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump versions
+        id: version
+        run: |
+          bump="${{ inputs.bump }}"
+          current="$(node -p "require('./package.json').version")"
+          next="$(node -e "const [a,b,c]=process.argv[1].split('.').map(Number); const bump=process.argv[2]; if (bump === 'major') console.log([a+1,0,0].join('.')); else if (bump === 'minor') console.log([a,b+1,0].join('.')); else console.log([a,b,c+1].join('.'));" "$current" "$bump")"
+          tag="v${next}"
+
+          if git rev-parse "$tag" >/dev/null 2>&1; then
+            echo "::error::Tag $tag already exists."
+            exit 1
+          fi
+
+          node -e "const fs=require('fs'); for (const file of ['package.json','frontend/package.json','frontend/package-lock.json']) { const data=JSON.parse(fs.readFileSync(file,'utf8')); data.version=process.argv[1]; if (data.packages && data.packages['']) data.packages[''].version=process.argv[1]; fs.writeFileSync(file, JSON.stringify(data,null,2) + '\n'); }" "$next"
+
+          echo "next=${next}" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and tag
+        run: |
+          git add package.json frontend/package.json frontend/package-lock.json
+          git commit -m "chore: release v${{ steps.version.outputs.next }}"
+          git tag "v${{ steps.version.outputs.next }}"
+          git push origin HEAD:main
+          git push origin "v${{ steps.version.outputs.next }}"
+
+      - name: Dispatch tag image publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run publish-images.yml --ref "${{ steps.version.outputs.tag }}"
